@@ -182,28 +182,28 @@ The system is composed of three main layers :
 
 This project is functional and stable for everyday use, but some constraints exist due to BOINC and Discord APIs :
 
-* BOINC XML structure is not fully consistent across all client versions
-  Fields like `fraction_done` and `elapsed_time` may appear at different XML depths (`result` or `active_task`). This can occasionally result in missing or reset values (e.g. 0% progress or 0 :00 elapsed time).
+* BOINC XML structure is not fully consistent across all client versions.
+   Fields like `fraction_done` and `elapsed_time` may appear at different XML depths (`result` or `active_task`). This can occasionally result in missing or reset values (e.g. 0% progress or 0 :00 elapsed time).
 
-* Project metadata is simplified
-  Project names are sometimes derived from `project_url`, which is not always human-readable. A more accurate mapping can be achieved by correlating with `get_state()`.
+* Project metadata is simplified.
+   Project names are sometimes derived from `project_url`, which is not always human-readable. A more accurate mapping can be achieved by correlating with `get_state()`.
 
-* Task rotation behavior is intentional
-  The displayed task rotates over time rather than always selecting the most important one. This provides a dynamic “live activity” effect but is not a strict priority scheduler.
+* Task rotation behavior is intentional.
+   The displayed task rotates over time rather than always selecting the most important one. This provides a dynamic “live activity” effect but is not a strict priority scheduler.
 
-* Local-only usage
-  The tool requires a BOINC instance running on the same machine. Remote BOINC instances are not supported.
+* Local-only usage.
+   The tool requires a BOINC instance running on the same machine. Remote BOINC instances are not supported.
 
-* Discord update rate limits
-  Extremely frequent updates may be throttled by Discord’s Rich Presence system.
+* Discord update rate limits.
+   Extremely frequent updates may be throttled by Discord’s Rich Presence system.
 
-* GPU detection may potentially interfere with task reporting, although this has not been confirmed  
-  In some personal tests (notably on AMD setups under Fedora), GPU-related activity was not always consistently reflected in BOINC’s RPC output. 
+* GPU detection may potentially interfere with task reporting, although this has not been confirmed.
+   In some personal tests (notably on AMD setups under Fedora), GPU-related activity was not always consistently reflected in BOINC’s RPC output. 
   However, it is unclear whether this comes from BOINC itself, the driver stack, or the way GPU is detected.
 
 * Windows support is "available" but not fully validated...
-  The project has been primarily developed and tested on Linux environments (Fedora-based systems). 
-  Windows compatibility is implemented, but has not been extensively tested in real-world usage and may require additional adjustments depending on BOINC installation paths or permissions.
+   The project has been primarily developed and tested on Linux environments (Fedora-based systems). 
+   Windows compatibility is implemented, but has not been extensively tested in real-world usage and may require additional adjustments depending on BOINC installation paths or permissions.
 
 ---
 
@@ -220,6 +220,12 @@ This makes it suitable for :
 * Personal monitoring dashboards
 * Learning BOINC RPC and Discord IPC
 * Experimental telemetry middleware projects
+
+### Development notes
+
+Some parts of this project were assisted by **AI-based code generation** tools during development.
+
+The final implementation, testing, and integration were reviewed and adapted manually.
 
 ---
 
