@@ -201,7 +201,7 @@ This project is functional and stable for everyday use, but some constraints exi
   In some personal tests (notably on AMD setups under Fedora), GPU-related activity was not always consistently reflected in BOINC’s RPC output. 
   However, it is unclear whether this comes from BOINC itself, the driver stack, or the way GPU is detected.
 
-* Windows support is "available" but not fully validated  
+* Windows support is "available" but not fully validated...
   The project has been primarily developed and tested on Linux environments (Fedora-based systems). 
   Windows compatibility is implemented, but has not been extensively tested in real-world usage and may require additional adjustments depending on BOINC installation paths or permissions.
 
@@ -222,8 +222,6 @@ This makes it suitable for :
 * Experimental telemetry middleware projects
 
 ---
-
-## License
 
 ## License
 
