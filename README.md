@@ -273,6 +273,25 @@ journalctl --user -u boinc-discord.service -f
 
 ---
 
+## Discord Application
+
+This project uses a Discord Application to display Rich Presence information.
+
+You can customize the appearance (name, images, and assets) by creating your own application on the Discord Developer Portal:
+
+https://discord.com/developers/applications
+
+Once created, replace the default `DISCORD_CLIENT_ID` in your `.env` file with your own Application ID.
+
+This allows you to:
+- Change the application name shown in Discord
+- Customize Rich Presence assets (images, icons, etc.)
+- Personalize the displayed activity layout
+
+You can also modify the source code if you want to adjust what is displayed (task details, progress format, rotation behavior, etc.).
+
+---
+
 ## Limitations
 
 * BOINC XML structure varies across versions
