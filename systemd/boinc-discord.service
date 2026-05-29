@@ -1,5 +1,5 @@
 [Unit]
-Description=Middleware BOINC vers Discord Rich Presence
+Description=BOINC Discord Rich Presence Middleware
 After=network.target
 
 [Service]
@@ -8,9 +8,8 @@ Type=simple
 Environment="PYTHONUNBUFFERED=1"
 Environment="PATH=%h/.local/bin:/usr/bin"
 
-EnvironmentFile=%h/.config/boinc-rpc/.env
-
-ExecStart=/usr/bin/python3 %h/.local/bin/boinc_rpc_daemon.py
+WorkingDirectory=%h/BOINC-RPC
+ExecStart=/usr/bin/python3 %h/BOINC-RPC/src/boinc_rpc_daemon.py
 
 Restart=always
 RestartSec=15
