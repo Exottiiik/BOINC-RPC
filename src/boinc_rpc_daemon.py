@@ -17,6 +17,7 @@ import logging
 import platform
 import xml.etree.ElementTree as ET
 
+from pathlib import Path
 from dotenv import load_dotenv
 from pypresence import Presence
 
@@ -24,7 +25,8 @@ from pypresence import Presence
 # CONFIGURATION
 # ---------------------------------------------------------------------------
 
-load_dotenv()
+BASE_ENV = Path.home() / ".config" / "boinc-rpc" / ".env"
+load_dotenv(BASE_ENV)
 
 DEBUG_MODE = os.getenv("DEBUG_MODE", "False").lower() in ("true", "1", "t")
 
@@ -41,10 +43,21 @@ logger = logging.getLogger("BOINCDiscordRPC")
 
 CURRENT_OS = platform.system()
 
-if CURRENT_OS == "Windows":
-    DEFAULT_BOINC_PASSWORD = r"C:\ProgramData\BOINC\gui_rpc_auth.cfg"
-else:
-    DEFAULT_BOINC_PASSWORD = "/var/lib/boinc/gui_rpc_auth.cfg"
+DEFAULT_BOINC_PASSWORD = (
+    r"C:\ProgramData\BOINC\gui_rpc_auth.cfg"
+    if CURRENT_OS == "Windows"
+    else "/var/lib/boinc/gui_rpc_auth.cfg"
+)
+
+# ---------------------------------------------------------------------------
+# CONFIG RESOLUTION
+# ---------------------------------------------------------------------------
+
+BOINC_PASSWORD_PATH = os.getenv("BOINC_PASSWORD_PATH", DEFAULT_BOINC_PASSWORD)
+BOINC_HOST = os.getenv("BOINC_HOST", "127.0.0.1")
+BOINC_PORT = int(os.getenv("BOINC_PORT", "31416"))
+DISCORD_CLIENT_ID = os.getenv("DISCORD_CLIENT_ID")
+UPDATE_INTERVAL = int(os.getenv("UPDATE_INTERVAL", "15"))
 
 # ---------------------------------------------------------------------------
 # HELPERS
@@ -192,7 +205,15 @@ class BoincRPCClient:
             "<get_results><active_only>1</active_only></get_results>"
         )
 
-        return ET.fromstring(xml)
+        if not xml or not xml.strip():
+            return ET.Element("results")
+
+        try:
+            return ET.fromstring(xml)
+
+        except ET.ParseError as e:
+            logger.warning(f"Invalid BOINC XML received: {e}")
+            return ET.Element("results")
 
 # ---------------------------------------------------------------------------
 # DISCORD DAEMON
