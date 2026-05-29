@@ -2,7 +2,7 @@
 
 A lightweight middleware that connects BOINC distributed computing status to Discord Rich Presence.
 
-It displays your current BOINC workload directly in your Discord profile, including  :
+It displays your current BOINC workload directly in your Discord profile, including :
 - Number of active tasks
 - Task progress
 - Task runtime
@@ -30,7 +30,7 @@ This project acts as a bridge between BOINC’s local RPC interface and Discord�
 - BOINC client running locally
 - Discord desktop application (Rich Presence enabled)
 
-Python dependencies :
+Python dependencies:
 
 ```bash
 pip install pypresence python-dotenv
@@ -38,85 +38,180 @@ pip install pypresence python-dotenv
 
 ---
 
-## Configuration
-
-
-Create a .env file in the project directory.
-
-### Linux
-
-```ini
-DISCORD_CLIENT_ID=your_discord_application_id
-BOINC_HOST=127.0.0.1
-BOINC_PORT=31416
-BOINC_PASSWORD_PATH=/var/lib/boinc/gui_rpc_auth.cfg
-UPDATE_INTERVAL=15
-DEBUG_MODE=False
-```
-
-### Windows
-
-```ini
-DISCORD_CLIENT_ID=your_discord_application_id
-BOINC_HOST=127.0.0.1
-BOINC_PORT=31416
-BOINC_PASSWORD_PATH=C:\ProgramData\BOINC\gui_rpc_auth.cfg
-UPDATE_INTERVAL=15
-DEBUG_MODE=False
-```
-
----
-
 ## BOINC Setup
 
+You should refer to :
+
+- [BOINC Official Wiki](https://github.com/BOINC/boinc/wiki/User-manual)
+- [BOINC Official Download Page](https://boinc.berkeley.edu/download.php)
+
 ### Linux
 
-Install BOINC :
-
-```bash
-sudo apt install boinc-client
-# or
-sudo dnf install boinc-client
-```
-
-Ensure your user has access to the BOINC RPC interface :
-
-```bash
-sudo usermod -aG boinc $USER
-```
-
-Then log out and log back in.
-
----
+*Refer to the official BOINC documentation for installation details.*
 
 ### Windows
 
-BOINC configuration file location :
+BOINC must be installed and running as a service or background process.
+
+Ensure the RPC file exists:
 
 ```
 C:\ProgramData\BOINC\gui_rpc_auth.cfg
 ```
 
-Make sure :
-
-* BOINC is running in background or as a service
-* The GUI RPC interface is enabled
-
 ---
 
-## Running manually
+## Installation
 
-```bash
-python boinc_rpc_daemon.py
+### 1. Manual installation (recommended for everyone)
+
+This method works regardless of where you place the project.
+
+1. Download the project :
+
+   * Either download the ZIP from GitHub
+   * Or copy the files manually into a folder of your choice
+
+For example, you can place it anywhere:
+
+```
+Desktop/BOINC-RPC/
+Documents/BOINC-RPC/
+~/apps/boinc-rpc/
+```
+
+What matters is that the folder contains :
+
+```
+BOINC-RPC/
+├── src/
+│   └── boinc_rpc_daemon.py
+├── requirements.txt
+├── .env.example
 ```
 
 ---
 
-## Systemd Service (Linux)
+### 2. Install dependencies
 
-Create the service file :
+Open a terminal inside the project folder *you can type cmd.exe in the path bar in the file explorer or navigate to it manually by using the command `cd`* :
 
-`~/.config/systemd/user/boinc-discord.service`
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## Configuration
+
+This project uses a user-level configuration file.
+
+### Linux
+
+The config file must be created here *using the `.env.example` file that you get from GitHub or the archive you downloaded* :
+
+```text
+~/.config/boinc-rpc/.env
+````
+
+### Windows
+
+The config file must be created here :
+
+```text
+%USERPROFILE%\.config\boinc-rpc\.env
+```
+*example : `C:\Users\Alice\.config\boinc-rpc\.env`*.
+
+Yes, the same structure is used on both systems for consistency.
+*On Windows, `%USERPROFILE%` resolves automatically to `C:\Users\YourName`*
+
+---
+
+### Step-by-step setup
+
+#### 1. Create the config directory
+
+##### Linux
+
+```bash
+mkdir -p ~/.config/boinc-rpc
+```
+
+##### Windows (PowerShell)
+
+```powershell
+mkdir $env:USERPROFILE\.config\boinc-rpc
+```
+
+---
+
+#### 2. Create the `.env` file
+
+Copy `.env.example` into the correct location *you need to be in the folder of the project (BOINC-RPC for example) folder before trying to copy* :
+
+##### Linux
+
+```bash
+cp .env.example ~/.config/boinc-rpc/.env
+```
+
+##### Windows (PowerShell)
+
+```powershell
+Copy-Item .env.example "$env:USERPROFILE\.config\boinc-rpc\.env"
+```
+
+---
+
+#### 3. Edit configuration
+
+Example `.env`:
+
+```ini
+DISCORD_CLIENT_ID=1509951042958266580
+BOINC_HOST=127.0.0.1
+BOINC_PORT=31416
+
+# Linux:
+BOINC_PASSWORD_PATH=/var/lib/boinc/gui_rpc_auth.cfg
+
+# Windows:
+# BOINC_PASSWORD_PATH=C:\ProgramData\BOINC\gui_rpc_auth.cfg
+
+UPDATE_INTERVAL=15
+DEBUG_MODE=False
+```
+
+*an .env.example file is available in the GitHub if you need to customize it...*
+
+---
+
+## Running the project 
+
+### Manually
+
+From the project root :
+*project root = the folder containing src/ and requirements.txt*
+
+```bash
+python src/boinc_rpc_daemon.py
+```
+
+### Windows auto-start 
+
+*I recommend you to take a look [here](https://www.technipages.com/scheduled-task-windows/)*.
+
+### Systemd Service (Linux auto-start)
+
+Create service file :
+
+```bash
+mkdir -p ~/.config/systemd/user/
+nano ~/.config/systemd/user/boinc-discord.service
+```
+
+Service configuration :
 
 ```ini
 [Unit]
@@ -127,8 +222,8 @@ After=network.target
 Type=simple
 Environment="PYTHONUNBUFFERED=1"
 Environment="PATH=%h/.local/bin:/usr/bin"
-EnvironmentFile=%h/.config/boinc-rpc/.env
-ExecStart=/usr/bin/python3 %h/.local/bin/boinc_rpc_daemon.py
+WorkingDirectory=%h/BOINC-RPC
+ExecStart=/usr/bin/python3 %h/BOINC-RPC/src/boinc_rpc_daemon.py
 Restart=always
 RestartSec=15
 StandardOutput=journal
@@ -138,7 +233,9 @@ StandardError=journal
 WantedBy=default.target
 ```
 
-Enable and start :
+*The service assumes the project is located in ~/BOINC-RPC. Son make sure that the `WorkingDirectory` and `ExecStart` are correct for your installation.*
+
+Enable service :
 
 ```bash
 systemctl --user daemon-reload
@@ -155,77 +252,51 @@ journalctl --user -u boinc-discord.service -f
 
 ## Architecture
 
-The system is composed of three main layers :
+### BOINC RPC Layer
 
-### 1. BOINC RPC Layer
+* TCP connection (31416)
+* XML-based protocol
+* MD5 authentication
 
-* TCP connection on port 31416
-* XML-based communication protocol
-* MD5 nonce authentication (local only)
+### Python Middleware
 
-### 2. Python Middleware
+* XML parsing
+* Task filtering
+* State normalization
+* Safe fallback handling
 
-* XML parsing via ElementTree
-* Task filtering and aggregation
-* State normalization across BOINC versions
-* Reconnection logic for robustness
+### Discord IPC Layer
 
-### 3. Discord IPC Layer
-
-* Managed via `pypresence`
-* Updates Discord Rich Presence
-* Handles connection drops gracefully
+* pypresence integration
+* Rich Presence updates
+* Automatic reconnect
 
 ---
 
 ## Limitations
 
-This project is functional and stable for everyday use, but some constraints exist due to BOINC and Discord APIs :
-
-* BOINC XML structure is not fully consistent across all client versions.
-   Fields like `fraction_done` and `elapsed_time` may appear at different XML depths (`result` or `active_task`). This can occasionally result in missing or reset values (e.g. 0% progress or 0 :00 elapsed time).
-
-* Project metadata is simplified.
-   Project names are sometimes derived from `project_url`, which is not always human-readable. A more accurate mapping can be achieved by correlating with `get_state()`.
-
-* Task rotation behavior is intentional.
-   The displayed task rotates over time rather than always selecting the most important one. This provides a dynamic “live activity” effect but is not a strict priority scheduler.
-
-* Local-only usage.
-   The tool requires a BOINC instance running on the same machine. Remote BOINC instances are not supported.
-
-* Discord update rate limits.
-   Extremely frequent updates may be throttled by Discord’s Rich Presence system.
-
-* GPU detection may potentially interfere with task reporting, although this has not been confirmed.
-   In some personal tests (notably on AMD setups under Fedora), GPU-related activity was not always consistently reflected in BOINC’s RPC output. 
-  However, it is unclear whether this comes from BOINC itself, the driver stack, or the way GPU is detected.
-
-* Windows support is "available" but not fully validated...
-   The project has been primarily developed and tested on Linux environments (Fedora-based systems). 
-   Windows compatibility is implemented, but has not been extensively tested in real-world usage and may require additional adjustments depending on BOINC installation paths or permissions.
+* BOINC XML structure varies across versions
+* Some fields may be missing or reset depending on client state
+* Project names derived from URL (not always clean)
+* Local machine only (no remote BOINC support)
+* Discord rate limits apply to update frequency
+* GPU reporting depends on BOINC + driver stack behavior
+* Windows support is supposed functional but less extensively tested
 
 ---
 
 ## Notes
 
-This project was originally developed as a personal middleware and experimental integration between BOINC and Discord.
+This project was initially developed as a personal middleware between BOINC and Discord.
+It prioritizes simplicity and real-time feedback over strict enterprise architecture.
 
-It has been tested in real desktop environments (Linux and Windows with BOINC + Discord running locally) and works reliably for continuous usage.
+Suitable for:
 
-Some design choices prioritize simplicity and responsiveness over strict production-grade architecture, especially in task selection and XML normalization.
+* personal monitoring
+* BOINC learning
+* Discord IPC experimentation
 
-This makes it suitable for :
-
-* Personal monitoring dashboards
-* Learning BOINC RPC and Discord IPC
-* Experimental telemetry middleware projects
-
-### Development notes
-
-Some parts of this project were assisted by **AI-based code generation** tools during development.
-
-The final implementation, testing, and integration were reviewed and adapted manually.
+And maybe it needs some adjustment to work nicely with your installation.
 
 ---
 
