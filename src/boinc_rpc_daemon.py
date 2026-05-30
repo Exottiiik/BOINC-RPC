@@ -17,6 +17,7 @@ import logging
 import platform
 import xml.etree.ElementTree as ET
 
+from urllib.parse import urlparse
 from pathlib import Path
 from dotenv import load_dotenv
 from pypresence import Presence
@@ -310,7 +311,11 @@ class DiscordBoincDaemon:
             project_name = "unknown project"
 
             if project_node is not None and project_node.text:
-                project_name = project_node.text.split("//")[-1]
+                parsed_url = urlparse(project_node.text)
+                domain = parsed_url.netloc or project_node.text
+                if domain.startswith("www."):
+                    domain = domain[4:]
+                project_name = domain
 
             # ACTIVE TASK
             active = result.find(".//active_task")
@@ -353,8 +358,8 @@ class DiscordBoincDaemon:
         details = f"Computing for {count} BOINC tasks"
 
         state = (
-            f"Task : {current['name']} "
-            f"from {current['project']} "
+            f"TASK : {current['name']} "
+            f"FROM {current['project']} "
             f"= {current['progress']:.1f}%"
         )
 
@@ -375,6 +380,13 @@ class DiscordBoincDaemon:
     # -----------------------------------------------------------------------
 
     def run(self):
+
+        if CURRENT_OS == "Windows":
+            import ctypes
+            self.mutex = ctypes.windll.kernel32.CreateMutexW(None, False, "BOINC_Discord_RPC_SingleInstance")
+            if ctypes.windll.kernel32.GetLastError() == 183:
+                logger.error("An instance of BOINC Discord RPC is already running. Exiting.")
+                return
 
         logger.info(f"BOINC Discord RPC started on {CURRENT_OS}")
 
