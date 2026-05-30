@@ -25,6 +25,7 @@ This project acts as a bridge between BOINC’s local RPC interface and Discord�
 ---
 
 ## Requirements
+*this may vary based on your operating system and the used installation method.*
 
 - Python 3.8+
 - BOINC client running locally
@@ -53,7 +54,7 @@ You should refer to :
 
 BOINC must be installed and running as a service or background process.
 
-Ensure the RPC file exists:
+Ensure the RPC file exists *if you change it, take note of the path* :
 
 ```
 C:\ProgramData\BOINC\gui_rpc_auth.cfg
@@ -63,189 +64,78 @@ C:\ProgramData\BOINC\gui_rpc_auth.cfg
 
 ## Installation
 
-### 1. Manual installation (recommended for everyone)
+### Windows (easy Install)
 
-This method works regardless of where you place the project.
+The easiest way to use this tool on Windows is to use the standalone installer. **You do not need to install Python.since its provided by the installer**.
 
-1. Download the project :
+1. Go to the **[Releases](https://github.com/Exottiiik/BOINC-RPC/releases)** tab on the right side of this GitHub page.
+2. Download the latest `BOINC-RPC-Windows-Installer.exe`.
+3. Run the installer and follow the setup wizard.
+4. *Note: Windows SmartScreen or your Antivirus might flag the installer because it is brand new and not digitally signed by a paid corporate certificate. This is a false positive common with open-source software. Click "More info" -> "Run anyway". On hardened configuration (not default), some error may occurs since some permissions are needed...*
 
-   * Either download the ZIP from GitHub
-   * Or copy the files manually into a folder of your choice
+The installer will automatically set up the embedded environment, configure the BOINC paths, and create a silent Scheduled Task so the RPC starts automatically when you log into Windows.
 
-For example, you can place it anywhere:
+### Linux (Automated Bash Script)
 
+For Linux users, an interactive bash script is provided to automate the creation of the Python virtual environment and the setup of the `systemd` background service.
+
+**Prerequisites :**
+1. **Python `venv` :** Ensure you have the virtual environment package installed. On Debian/Ubuntu systems, run `sudo apt install python3-venv` before executing the script.
+2. **Systemd :** The auto-start functionality strictly relies on `systemd` running in user mode. Do not run the installation script as `root` (do not use `sudo`), as the Rich Presence IPC socket needs to communicate with your local user's Discord instance.
+3. **Flatpak/Snap Users :** The script defaults to the standard package manager path for BOINC (`/var/lib/boinc/gui_rpc_auth.cfg`). If you installed BOINC via Flatpak or Snap, you will need to manually locate this file inside your containerized application folder and provide the custom path when the script prompts you.
+
+**Run the installer :**
+
+```bash
+git clone [https://github.com/Exottiiik/BOINC-RPC.git](https://github.com/Exottiiik/BOINC-RPC.git)
+cd BOINC-RPC
+chmod +x install.sh
+./install.sh
 ```
-Desktop/BOINC-RPC/
-Documents/BOINC-RPC/
-~/apps/boinc-rpc/
-```
-
-What matters is that the folder contains :
-
-```
-BOINC-RPC/
-├── src/
-│   └── boinc_rpc_daemon.py
-├── requirements.txt
-├── .env.example
-```
+*NOTE : you may need to adapt these lines with your own paths and environment...*
 
 ---
 
-### 2. Install dependencies
+## Manual Installation / development
 
-Open a terminal inside the project folder *you can type cmd.exe in the path bar in the file explorer or navigate to it manually by using the command `cd`* :
+If you prefer to run the script from source manually, follow these steps :
+
+### 1. Install requirements
+
+Requires Python 3.8+.
 
 ```bash
 pip install -r requirements.txt
+
 ```
 
----
+### 2. Configuration
 
-## Configuration
+Create a user-level `.env` file from the example provided :
 
-This project uses a user-level configuration file.
-
-### Linux
-
-The config file must be created here *using the `.env.example` file that you get from GitHub or the archive you downloaded* :
-
-```text
-~/.config/boinc-rpc/.env
-````
-
-### Windows
-
-The config file must be created here :
-
-```text
-%USERPROFILE%\.config\boinc-rpc\.env
-```
-*example : `C:\Users\Alice\.config\boinc-rpc\.env`*.
-
-Yes, the same structure is used on both systems for consistency.
-*On Windows, `%USERPROFILE%` resolves automatically to `C:\Users\YourName`*
-
----
-
-### Step-by-step setup
-
-#### 1. Create the config directory
-
-##### Linux
+**Linux:**
 
 ```bash
 mkdir -p ~/.config/boinc-rpc
+cp .env.example ~/.config/boinc-rpc/.env
+
 ```
 
-##### Windows (PowerShell)
+**Windows (PowerShell) :**
 
 ```powershell
 mkdir $env:USERPROFILE\.config\boinc-rpc
-```
-
----
-
-#### 2. Create the `.env` file
-
-Copy `.env.example` into the correct location *you need to be in the folder of the project (BOINC-RPC for example) folder before trying to copy* :
-
-##### Linux
-
-```bash
-cp .env.example ~/.config/boinc-rpc/.env
-```
-
-##### Windows (PowerShell)
-
-```powershell
 Copy-Item .env.example "$env:USERPROFILE\.config\boinc-rpc\.env"
+
 ```
 
----
+Edit the `.env` file to match your `gui_rpc_auth.cfg` path.
 
-#### 3. Edit configuration
-
-Example `.env`:
-
-```ini
-DISCORD_CLIENT_ID=1509951042958266580
-BOINC_HOST=127.0.0.1
-BOINC_PORT=31416
-
-# Linux:
-BOINC_PASSWORD_PATH=/var/lib/boinc/gui_rpc_auth.cfg
-
-# Windows:
-# BOINC_PASSWORD_PATH=C:\ProgramData\BOINC\gui_rpc_auth.cfg
-
-UPDATE_INTERVAL=15
-DEBUG_MODE=False
-```
-
-*an .env.example file is available in the GitHub if you need to customize it...*
-
----
-
-## Running the project 
-
-### Manually
-
-From the project root :
-*project root = the folder containing src/ and requirements.txt*
+### 3. Run
 
 ```bash
 python src/boinc_rpc_daemon.py
-```
 
-### Windows auto-start 
-
-*I recommend you to take a look [here](https://www.technipages.com/scheduled-task-windows/)*.
-
-### Systemd Service (Linux auto-start)
-
-Create service file :
-
-```bash
-mkdir -p ~/.config/systemd/user/
-nano ~/.config/systemd/user/boinc-discord.service
-```
-
-Service configuration :
-
-```ini
-[Unit]
-Description=BOINC Discord Rich Presence Middleware
-After=network.target
-
-[Service]
-Type=simple
-Environment="PYTHONUNBUFFERED=1"
-Environment="PATH=%h/.local/bin:/usr/bin"
-WorkingDirectory=%h/BOINC-RPC
-ExecStart=/usr/bin/python3 %h/BOINC-RPC/src/boinc_rpc_daemon.py
-Restart=always
-RestartSec=15
-StandardOutput=journal
-StandardError=journal
-
-[Install]
-WantedBy=default.target
-```
-
-*The service assumes the project is located in ~/BOINC-RPC. Son make sure that the `WorkingDirectory` and `ExecStart` are correct for your installation.*
-
-Enable service :
-
-```bash
-systemctl --user daemon-reload
-systemctl --user enable --now boinc-discord.service
-```
-
-Logs :
-
-```bash
-journalctl --user -u boinc-discord.service -f
 ```
 
 ---
