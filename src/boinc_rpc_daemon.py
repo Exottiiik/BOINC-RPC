@@ -355,7 +355,7 @@ class DiscordBoincDaemon:
 
         count = len(tasks)
 
-        details = f"Computing for {count} BOINC tasks"
+        details = f"Computing for {count} BOINC {'task' if count == 1 else 'tasks'}"
 
         state = (
             f"TASK : {current['name']} "
@@ -372,9 +372,11 @@ class DiscordBoincDaemon:
             state=state,
             large_image="boinc_logo",
             large_text=hover,
-            small_image="windows_logo" if CURRENT_OS == "Windows" else "fedora_logo",
-            small_text=CURRENT_OS,
-            start=int(time.time() - current["elapsed"])
+            start=int(time.time() - current["elapsed"]),
+            buttons=[
+                {"label": "What's BOINC ?", "url": "https://boinc.berkeley.edu/"},
+                {"label": "Add this to Discord !", "url": "https://github.com/Exottiiik/BOINC-RPC"}
+            ]
         )
 
     # -----------------------------------------------------------------------
