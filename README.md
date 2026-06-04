@@ -86,7 +86,7 @@ For Linux users, an interactive bash script is provided to automate the creation
 
 **Run the installer:**
 
-Go to the **[Releases](https://github.com/Exottiiik/BOINC-RPC/releases)** tab, download the Linux archive, extract it, and run the script:
+Go to the **[Releases](https://github.com/Exottiiik/BOINC-RPC/releases)** tab, download the Linux archive, extract it, and run the script while following what's displayed or, use these lines :
 
 ```bash
 # Download the latest release or use wget (you may need to replace v1.0.0 with the current version)
