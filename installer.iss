@@ -3,7 +3,7 @@
 ; ---------------------------------------------------------------------------
 [Setup]
 AppName=BOINC Discord RPC
-AppVersion=1.0
+AppVersion=2.0
 AppPublisher=Exottiiik
 DefaultDirName={localappdata}\Programs\BOINC-RPC
 DefaultGroupName=BOINC Discord RPC
@@ -106,6 +106,8 @@ begin
 end;
 
 procedure InitializeWizard;
+var
+  DefaultPath: String;
 begin
   BoincPathPage := CreateInputFilePage(wpSelectDir,
     ExpandConstant('{cm:BoincPageTitle}'),
@@ -116,7 +118,8 @@ begin
     'Configuration files (*.cfg)|*.cfg|All files (*.*)|*.*', 
     '.cfg');
 
-  BoincPathPage.Values[0] := 'C:\ProgramData\BOINC\gui_rpc_auth.cfg';
+  DefaultPath := 'C:\ProgramData\BOINC\gui_rpc_auth.cfg'; 
+  BoincPathPage.Values[0] := DefaultPath;
 
   GithubLabel := TLabel.Create(WizardForm);
   GithubLabel.Parent := BoincPathPage.Surface;
@@ -124,35 +127,48 @@ begin
   GithubLabel.Top := BoincPathPage.Surface.Height - 45;
   GithubLabel.Width := BoincPathPage.Surface.Width;
   GithubLabel.WordWrap := True;
-  
   GithubLabel.Font.Style := [fsItalic, fsUnderline];
   GithubLabel.Font.Color := clBlue;
   GithubLabel.Cursor := crHand;
-  
   GithubLabel.OnClick := @OpenGithubClick;
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
 var
-  ConfigDir, EnvPath: String;
-  EnvContent: TArrayOfString;
+  ConfigDir, ConfigPath, JsonContent, EscapedPath: String;
+  ResultCode: Integer;
 begin
+  if CurStep = ssInstall then
+  begin
+    Exec('taskkill.exe', '/F /IM "BOINC-Discord-RPC.exe" /T', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  end;
+
   if CurStep = ssPostInstall then
   begin
     ConfigDir := ExpandConstant('{%USERPROFILE}\.config\boinc-rpc');
-    EnvPath := ConfigDir + '\.env';
+    ConfigPath := ConfigDir + '\config.json';
 
     if not DirExists(ConfigDir) then
       ForceDirectories(ConfigDir);
-
-    SetArrayLength(EnvContent, 6);
-    EnvContent[0] := 'DISCORD_CLIENT_ID=1509951042958266580';
-    EnvContent[1] := 'BOINC_HOST=127.0.0.1';
-    EnvContent[2] := 'BOINC_PORT=31416';
-    EnvContent[3] := 'UPDATE_INTERVAL=15';
-    EnvContent[4] := 'DEBUG_MODE=False';
-    EnvContent[5] := 'BOINC_PASSWORD_PATH=' + BoincPathPage.Values[0];
-
-    SaveStringsToFile(EnvPath, EnvContent, False);
+    if not FileExists(ConfigPath) then
+    begin
+      EscapedPath := BoincPathPage.Values[0];
+      StringChange(EscapedPath, '\', '\\');
+      JsonContent := '{' + #13#10 +
+                     '  "discord_client_id": "1509951042958266580",' + #13#10 +
+                     '  "update_interval": 15,' + #13#10 +
+                     '  "debug_mode": false,' + #13#10 +
+                     '  "nodes": [' + #13#10 +
+                     '    {' + #13#10 +
+                     '      "name": "Localhost",' + #13#10 +
+                     '      "host": "127.0.0.1",' + #13#10 +
+                     '      "port": 31416,' + #13#10 +
+                     '      "password_path": "' + EscapedPath + '",' + #13#10 +
+                     '      "password": ""' + #13#10 +
+                     '    }' + #13#10 +
+                     '  ]' + #13#10 +
+                     '}';
+      SaveStringToFile(ConfigPath, JsonContent, False);
+    end;
   end;
 end;
