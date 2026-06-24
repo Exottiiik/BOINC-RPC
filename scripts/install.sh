@@ -11,9 +11,9 @@ if ! command -v python3 &> /dev/null; then
     exit 1
 fi
 
-# 2. Command-line "Wizard" (.env creation)
+# 2. Wizard for configuration (json file)
 CONFIG_DIR="$HOME/.config/boinc-rpc"
-ENV_FILE="$CONFIG_DIR/.env"
+CONFIG_FILE="$CONFIG_DIR/config.json"
 
 mkdir -p "$CONFIG_DIR"
 
@@ -25,14 +25,25 @@ echo -n "Path to gui_rpc_auth.cfg [/var/lib/boinc/gui_rpc_auth.cfg]: "
 read BOINC_PATH
 BOINC_PATH=${BOINC_PATH:-/var/lib/boinc/gui_rpc_auth.cfg}
 
-echo "DISCORD_CLIENT_ID=1509951042958266580" > "$ENV_FILE"
-echo "BOINC_HOST=127.0.0.1" >> "$ENV_FILE"
-echo "BOINC_PORT=31416" >> "$ENV_FILE"
-echo "UPDATE_INTERVAL=15" >> "$ENV_FILE"
-echo "DEBUG_MODE=False" >> "$ENV_FILE"
-echo "BOINC_PASSWORD_PATH=$BOINC_PATH" >> "$ENV_FILE"
+# JSON Generation
+cat <<EOF > "$CONFIG_FILE"
+{
+  "discord_client_id": "1509951042958266580",
+  "update_interval": 15,
+  "debug_mode": false,
+  "nodes": [
+    {
+      "name": "Local Node",
+      "host": "127.0.0.1",
+      "port": 31416,
+      "password_path": "$BOINC_PATH",
+      "password": ""
+    }
+  ]
+}
+EOF
 
-echo "[OK] Configuration saved in $ENV_FILE"
+echo "[OK] Configuration saved in $CONFIG_FILE"
 
 # 3. Local virtual environment creation
 echo "[Info] Creating Python virtual environment..."
