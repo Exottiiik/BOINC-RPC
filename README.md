@@ -18,6 +18,7 @@ This project acts as a bridge between BOINCâ€™s local RPC interface and Discordâ
 - Automatic BOINC RPC authentication (MD5 nonce handshake)
 - Active task monitoring with rotation display (5 tasks running = 5 taks rotation ~15s each one)
 - Real-time progress and elapsed time tracking
+- Multi-Host support (monitor multiple local or remote BOINC nodes simultaneously)
 - Automatic reconnection (BOINC / Discord *with some latency yeah*)
 - Lightweight and low resource usage
 - Fully local (no external API required)
@@ -34,7 +35,7 @@ This project acts as a bridge between BOINCâ€™s local RPC interface and Discordâ
 Python dependencies:
 
 ```bash
-pip install pypresence python-dotenv
+pip install pypresence
 ````
 
 ---
@@ -86,7 +87,7 @@ For Linux users, an interactive bash script is provided to automate the creation
 
 **Run the installer:**
 
-Go to the **[Releases](https://github.com/Exottiiik/BOINC-RPC/releases)** tab, download the Linux archive, extract it, and run the script while following what's displayed or, use these lines :
+Go to the **[Releases](https://github.com/Exottiiik/BOINC-RPC/releases)** tab, download the Linux archive, extract it, and run the script:
 
 ```bash
 # Download the latest release or use wget (you may need to replace v1.0.0 with the current version)
@@ -139,25 +140,47 @@ pip install -r requirements.txt
 
 ### 2. Configuration
 
-Create a user-level `.env` file from the example provided:
+The application uses a JSON configuration file. Upon the first launch, the script will automatically create a default `config.json` file in your user directory.
 
-**Linux:**
+**Linux:** `~/.config/boinc-rpc/config.json`
+**Windows:** `%USERPROFILE%\.config\boinc-rpc\config.json`
 
-```bash
-mkdir -p ~/.config/boinc-rpc
-cp .env.example ~/.config/boinc-rpc/.env
+By default, it is configured to listen to your local BOINC client. Open this file to edit your `password_path` or to add your own `discord_client_id`.
+
+### 3. Multi-Host Configuration (Advanced)
+
+To monitor multiple BOINC nodes across your local network, open the `config.json` file. You can add as many nodes as you want in the `"nodes"` array. 
+
+For remote machines, you must:
+1. Set `<allow_remote_gui_rpc>1</allow_remote_gui_rpc>` in their BOINC `cc_config.xml` file.
+2. Provide the raw password directly in the `"password"` field of the JSON instead of using the `"password_path"`.
+
+Example of a multi-node configuration:
+```json
+{
+  "discord_client_id": "YOUR_CLIENT_ID",
+  "update_interval": 15,
+  "debug_mode": false,
+  "nodes": [
+    {
+      "name": "Localhost",
+      "host": "127.0.0.1",
+      "port": 31416,
+      "password_path": "C:\\ProgramData\\BOINC\\gui_rpc_auth.cfg",
+      "password": ""
+    },
+    {
+      "name": "Ubuntu Server",
+      "host": "192.168.1.50",
+      "port": 31416,
+      "password_path": "",
+      "password": "my_remote_secret"
+    }
+  ]
+}
 ```
 
-**Windows (PowerShell):**
-
-```powershell
-mkdir $env:USERPROFILE\.config\boinc-rpc
-Copy-Item .env.example "$env:USERPROFILE\.config\boinc-rpc\.env"
-```
-
-Edit the `.env` file to match your `gui_rpc_auth.cfg` path.
-
-### 3. Run
+### 4. Run
 
 ```bash
 python src/boinc_rpc_daemon.py
@@ -198,7 +221,7 @@ You can customize the appearance (name, images, and assets) by creating your own
 
 https://discord.com/developers/applications
 
-Once created, replace the default `DISCORD_CLIENT_ID` in your `.env` file with your own Application ID.
+Once created, replace the default `DISCORD_CLIENT_ID` in your `config.json` file with your own Application ID.
 
 This allows you to:
 - Change the application name shown in Discord
@@ -214,10 +237,8 @@ You can also modify the source code if you want to adjust what is displayed (tas
 * BOINC XML structure varies across versions
 * Some fields may be missing or reset depending on client state
 * Project names derived from URL (not always clean but did the best)
-* Local machine only (no remote BOINC support)
 * Discord rate limits apply to update frequency
-* GPU reporting depends on BOINC + driver stack behavior *Fedora issue with AMD GPU*
-* Windows support is supposed functional but less extensively tested
+* GPU reporting depends on BOINC + driver stack behavior *Fedora issue with AMD GPU or something I personnaly experienced*
 * Alternative Discord clients (like Vesktop) can cause issues with the RPC *most probably related to Flatpak installation and permissions*.
 
 ---
