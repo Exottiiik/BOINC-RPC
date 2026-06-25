@@ -5,8 +5,8 @@ A lightweight middleware that connects BOINC distributed computing status to Dis
 It displays your current BOINC workload directly in your Discord profile, including :
 - Number of active tasks
 - Task progress
+- Project metadata (name)
 - Task runtime
-- Project metadata (optional)
 
 This project acts as a bridge between BOINC’s local RPC interface and Discord’s Rich Presence IPC system.
 
@@ -18,7 +18,7 @@ This project acts as a bridge between BOINC’s local RPC interface and Discord�
 - Automatic BOINC RPC authentication (MD5 nonce handshake)
 - Active task monitoring with rotation display (5 tasks running = 5 taks rotation ~15s each one)
 - Real-time progress and elapsed time tracking
-- Multi-Host support (monitor multiple local or remote BOINC nodes simultaneously)
+- Multi-Host support (monitor multiple local or remote BOINC nodes (**in the same LAN**) simultaneously)
 - Automatic reconnection (BOINC / Discord *with some latency yeah*)
 - Lightweight and low resource usage
 - Fully local (no external API required)
@@ -223,7 +223,7 @@ https://discord.com/developers/applications
 
 Once created, replace the default `DISCORD_CLIENT_ID` in your `config.json` file with your own Application ID.
 
-This allows you to:
+This allows you to :
 - Change the application name shown in Discord
 - Customize Rich Presence assets (images, icons, etc.)
 - Personalize the displayed activity layout
@@ -240,6 +240,7 @@ You can also modify the source code if you want to adjust what is displayed (tas
 * Discord rate limits apply to update frequency
 * GPU reporting depends on BOINC + driver stack behavior *Fedora issue with AMD GPU or something I personnaly experienced*
 * Alternative Discord clients (like Vesktop) can cause issues with the RPC *most probably related to Flatpak installation and permissions*.
+* Multi-nodes doesn't mean, multi-LANs. Single LAN configuration only...
 
 ---
 
