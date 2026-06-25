@@ -91,9 +91,9 @@ Go to the **[Releases](https://github.com/Exottiiik/BOINC-RPC/releases)** tab, d
 
 ```bash
 # Download the latest release or use wget (you may need to replace v1.0.0 with the current version)
-wget [https://github.com/Exottiiik/BOINC-RPC/releases/download/v1.0.0/BOINC-RPC-Linux-v1.0.0.tar.gz](https://github.com/Exottiiik/BOINC-RPC/releases/download/v1.0.0/BOINC-RPC-Linux-v1.0.0.tar.gz)
+wget [https://github.com/Exottiiik/BOINC-RPC/releases/download/v1.0.0/BOINC-RPC-Linux-v2.0.0.tar.gz](https://github.com/Exottiiik/BOINC-RPC/releases/download/v1.0.0/BOINC-RPC-Linux-v2.0.0.tar.gz)
 # Once downloaded manually or got via wget
-tar -xzvf BOINC-RPC-Linux-v1.0.0.tar.gz
+tar -xzvf BOINC-RPC-Linux-v2.0.0.tar.gz
 cd BOINC-RPC-Linux
 chmod +x install.sh
 ./install.sh
